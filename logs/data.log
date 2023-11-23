@@ -1,0 +1,2 @@
+[2023-11-22 01:27:22.510] [39108:6145798144] [INFO] [gateway_alpaca -> data] Quote (venue=Venue.ALPACA, symbol=ETH/USD, bid=8.754@1995.38, ask=8.81611@1997.37, ts=2023-11-22 07:27:22.507117+00:00)
+[2023-11-22 01:27:22.512] [39108:6145798144] [INFO] [gateway_alpaca -> data] Quote (venue=Venue.ALPACA, symbol=ETH/USD, bid=8.754@1995.38, ask=4.339@1997.45, ts=2023-11-22 07:27:22.507840+00:00)

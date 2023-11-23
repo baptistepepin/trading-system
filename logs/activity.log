@@ -1,0 +1,10 @@
+[2023-11-22 01:27:09.262] [39108:8189006592] [INFO] [MainThread -> app] STARTUP
+[2023-11-22 01:27:09.264] [39108:6112145408] [INFO] [engine -> app] engine started
+[2023-11-22 01:27:09.264] [39108:6128971776] [INFO] [strategy_sma_btc -> app] strategy_sma_btc started
+[2023-11-22 01:27:09.264] [39108:6145798144] [INFO] [gateway_alpaca -> app] gateway_alpaca starting
+[2023-11-22 01:27:36.858] [39108:8189006592] [INFO] [MainThread -> app] Received signal: 2. Initiating shutdown.
+[2023-11-22 01:27:37.359] [39108:6112145408] [INFO] [engine -> app] engine stopping
+[2023-11-22 01:27:37.359] [39108:6128971776] [INFO] [strategy_sma_btc -> app] strategy_sma_btc stopped
+[2023-11-22 01:27:37.359] [39108:6112145408] [INFO] [engine -> app] gateway_alpaca stopping
+[2023-11-22 01:27:37.549] [39108:6112145408] [INFO] [engine -> app] engine stopped
+[2023-11-22 01:27:37.549] [39108:8189006592] [INFO] [MainThread -> app] SHUTDOWN

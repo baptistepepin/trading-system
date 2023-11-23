@@ -1,1 +1,2 @@
-# trading-system
+# Trading System Project
+

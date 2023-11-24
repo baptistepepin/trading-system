@@ -1,4 +1,5 @@
-[2023-11-24 00:39:39.492] [65172:6155792384] [INFO] [gateway_alpaca -> alpaca.common.websocket] started data stream
-[2023-11-24 00:39:39.492] [65172:6155792384] [INFO] [gateway_alpaca -> alpaca.common.websocket] starting data websocket connection
-[2023-11-24 00:39:39.714] [65172:6155792384] [INFO] [gateway_alpaca -> alpaca.common.websocket] connected to: wss://stream.data.alpaca.markets/v1beta3/crypto/us
-[2023-11-24 00:39:39.751] [65172:6155792384] [INFO] [gateway_alpaca -> alpaca.common.websocket] subscribed to trades: ['BTC/USD', 'ETH/USD'], quotes: ['BTC/USD', 'ETH/USD'], bars: [], updatedBars: [], dailyBars: []
+[2023-11-24 11:11:22.543] [67466:10938920960] [INFO] [gateway_alpaca -> alpaca.common.websocket] started data stream
+[2023-11-24 11:11:22.543] [67466:10938920960] [INFO] [gateway_alpaca -> alpaca.common.websocket] starting data websocket connection
+[2023-11-24 11:11:22.867] [67466:10938920960] [INFO] [gateway_alpaca -> alpaca.common.websocket] connected to: wss://stream.data.alpaca.markets/v1beta3/crypto/us
+[2023-11-24 11:11:22.906] [67466:10938920960] [INFO] [gateway_alpaca -> alpaca.common.websocket] subscribed to trades: ['BTC/USD', 'ETH/USD'], quotes: ['BTC/USD', 'ETH/USD'], bars: [], updatedBars: [], dailyBars: []
+[2023-11-24 11:29:44.049] [67466:10938920960] [INFO] [gateway_alpaca -> alpaca.common.websocket] data stream stopped

@@ -16,6 +16,7 @@ from engine.interface import Trade, Quote, Signal, Venue, StrategyType, Strategy
 from gateways.alpaca.alpacaGateway import AlpacaGateway
 from gui.dashboard import spawn_dashboard
 from strategies.SMA.sma import SMAStrategy
+from strategies.Strat1.Strat1 import Strat1Strategy
 from strategies.strategy import Strategy
 from gateways.gateway import Gateway
 
@@ -25,7 +26,8 @@ gatewayFactory: Dict[int, Callable[..., Gateway]] = {
 }
 
 strategyFactory: Dict[int, Callable[..., Strategy]] = {
-    StrategyType.SMA: lambda cfg, qcb, log, stopper: SMAStrategy(cfg, qcb, log, stopper)
+    StrategyType.SMA: lambda cfg, qcb, log, stopper: SMAStrategy(cfg, qcb, log, stopper),
+    StrategyType.Strat1: lambda cfg, qcb, log, stopper: Strat1Strategy(cfg, qcb, log, stopper)
 }
 
 

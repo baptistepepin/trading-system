@@ -35,7 +35,7 @@ def spawn_dashboard(rx):
             return go.Figure()
 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df['Time'], y=df['Value'], name='Data',
+        fig.add_trace(go.Scatter(x=df['timestamp'], y=df['ask_prc'], name='Data',
                                  mode='lines+markers'))
 
         return fig

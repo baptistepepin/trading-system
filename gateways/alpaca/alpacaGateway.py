@@ -7,6 +7,10 @@ from alpaca.data.live.crypto import CryptoDataStream
 from engine.interface import Trade, Quote, Venue
 from gateways import gateway
 
+from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.enums import OrderSide, TimeInForce
+
 
 class AlpacaGateway(gateway.Gateway):
     def __init__(self,
@@ -21,6 +25,7 @@ class AlpacaGateway(gateway.Gateway):
             raw_data=False,
             url_override=self.config['endpoints']['market_data']['crypto']
         )
+        self.trading = TradingClient(self.config['api_key'], self.config['secret_key'])
 
     async def _on_quote(self, update: alpaca.data.models.quotes.Quote):
         quote = Quote(Venue.ALPACA, update.symbol, update.timestamp)
@@ -55,3 +60,5 @@ class AlpacaGateway(gateway.Gateway):
     def deactivate(self):
         self.stream.stop()
 
+    def trade(self, market_order: MarketOrderRequest):
+        self.trading.submit_order(order_data=market_order)

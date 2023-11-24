@@ -3,6 +3,9 @@ import logging
 from abc import ABC, abstractmethod
 from threading import Thread
 from typing import List, Callable
+
+from alpaca.trading import MarketOrderRequest
+
 from engine.interface import Quote, Trade
 
 
@@ -46,3 +49,6 @@ class Gateway(ABC, Thread):
     def stop(self):
         self.log.info(f"{self.name} stopping")
         self.deactivate()
+
+    def trade(self, market_order: MarketOrderRequest):
+        raise NotImplementedError

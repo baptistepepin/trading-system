@@ -8,8 +8,11 @@ from collections import defaultdict
 from multiprocessing import Pipe
 from threading import Event, Thread
 from typing import Dict, Callable, DefaultDict, List
+
+from alpaca.trading import MarketOrderRequest, TimeInForce, OrderType
+
 # local
-from engine.interface import Trade, Quote, Signal, Venue, StrategyType, StrategyTypeMap, VenueMap
+from engine.interface import Trade, Quote, Signal, Venue, StrategyType, StrategyTypeMap, VenueMap, ExposureToSideMap
 from gateways.alpaca.alpacaGateway import AlpacaGateway
 from gui.dashboard import spawn_dashboard
 from strategies.SMA.sma import SMAStrategy
@@ -117,7 +120,16 @@ class Engine(Thread):
         for signal in signals:
             self.dataLog.info(signal)
             # self.tx.send(signal)
-            # self.signalBuffer.put(signal)  # TODO this is a hack, need to fix this
+
+            market_order_data = MarketOrderRequest(
+                order_type=OrderType.MARKET,
+                symbol=signal.symbol,
+                qty=signal.qty,
+                side=ExposureToSideMap[signal.exposure],
+                time_in_force=TimeInForce.GTC,
+            )
+
+            self.gateways[0].trade(market_order_data)  # 0 is hardcoded for Alpaca
 
     def sig_handler(self, signum, frame):  # TODO this is a hack, need to fix this
         self.log.info(f"Received signal: {signum}. Initiating shutdown.")

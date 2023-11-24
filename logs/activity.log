@@ -1,10 +1,32 @@
-[2023-11-22 01:27:09.262] [39108:8189006592] [INFO] [MainThread -> app] STARTUP
-[2023-11-22 01:27:09.264] [39108:6112145408] [INFO] [engine -> app] engine started
-[2023-11-22 01:27:09.264] [39108:6128971776] [INFO] [strategy_sma_btc -> app] strategy_sma_btc started
-[2023-11-22 01:27:09.264] [39108:6145798144] [INFO] [gateway_alpaca -> app] gateway_alpaca starting
-[2023-11-22 01:27:36.858] [39108:8189006592] [INFO] [MainThread -> app] Received signal: 2. Initiating shutdown.
-[2023-11-22 01:27:37.359] [39108:6112145408] [INFO] [engine -> app] engine stopping
-[2023-11-22 01:27:37.359] [39108:6128971776] [INFO] [strategy_sma_btc -> app] strategy_sma_btc stopped
-[2023-11-22 01:27:37.359] [39108:6112145408] [INFO] [engine -> app] gateway_alpaca stopping
-[2023-11-22 01:27:37.549] [39108:6112145408] [INFO] [engine -> app] engine stopped
-[2023-11-22 01:27:37.549] [39108:8189006592] [INFO] [MainThread -> app] SHUTDOWN
+[2023-11-24 00:39:39.491] [65172:8189006592] [INFO] [MainThread -> app] STARTUP
+[2023-11-24 00:39:39.492] [65172:6122139648] [INFO] [engine -> app] engine started
+[2023-11-24 00:39:39.492] [65172:6138966016] [INFO] [strategy_sma_btc -> app] strategy_sma_btc started
+[2023-11-24 00:39:39.492] [65172:6155792384] [INFO] [gateway_alpaca -> app] gateway_alpaca starting
+[2023-11-24 00:39:43.703] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.27816@37392.1, ask=0.27858@37405.892, ts=2023-11-24 06:39:43.703501+00:00)
+[2023-11-24 00:39:43.705] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.27816@37392.1, ask=0.835896@37415.4, ts=2023-11-24 06:39:43.703852+00:00)
+[2023-11-24 00:39:43.706] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.27816@37392.1, ask=0.55301@37415.72, ts=2023-11-24 06:39:43.704135+00:00)
+[2023-11-24 00:39:43.707] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.27816@37392.1, ask=0.556769@37433.6, ts=2023-11-24 06:39:43.704203+00:00)
+[2023-11-24 00:39:43.711] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.27816@37392.1, ask=0.28011@37412.93, ts=2023-11-24 06:39:43.704437+00:00)
+[2023-11-24 00:39:59.799] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.5556@37372.7, ask=0.28011@37412.93, ts=2023-11-24 06:39:59.809429+00:00)
+[2023-11-24 00:39:59.800] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.276751@37383.572, ask=0.28011@37412.93, ts=2023-11-24 06:39:59.809652+00:00)
+[2023-11-24 00:39:59.801] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.276751@37383.572, ask=0.556769@37433.6, ts=2023-11-24 06:39:59.809656+00:00)
+[2023-11-24 00:39:59.801] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.276751@37383.572, ask=0.279463@37419.6, ts=2023-11-24 06:39:59.809769+00:00)
+[2023-11-24 00:40:23.622] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.5506@37373.47, ask=0.279463@37419.6, ts=2023-11-24 06:40:23.633254+00:00)
+[2023-11-24 00:40:23.622] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.55671@37383.5, ask=0.279463@37419.6, ts=2023-11-24 06:40:23.633265+00:00)
+[2023-11-24 00:40:23.623] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.279463, prc=37419.6)
+[2023-11-24 00:40:23.871] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.55671@37383.5, ask=0.5567@37427.981, ts=2023-11-24 06:40:23.633694+00:00)
+[2023-11-24 00:40:23.871] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.5567, prc=37427.981)
+[2023-11-24 00:40:23.917] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.55671@37383.5, ask=0.27718@37414.12, ts=2023-11-24 06:40:23.633791+00:00)
+[2023-11-24 00:40:23.917] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27718, prc=37414.12)
+[2023-11-24 00:40:23.959] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.27783@37391.823, ask=0.27718@37414.12, ts=2023-11-24 06:40:23.634224+00:00)
+[2023-11-24 00:40:23.959] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27718, prc=37414.12)
+[2023-11-24 00:40:42.645] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.55671@37383.5, ask=0.27718@37414.12, ts=2023-11-24 06:40:42.634740+00:00)
+[2023-11-24 00:40:42.646] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27718, prc=37414.12)
+[2023-11-24 00:40:42.734] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.2803@37398.26, ask=0.27718@37414.12, ts=2023-11-24 06:40:42.635018+00:00)
+[2023-11-24 00:40:42.734] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27718, prc=37414.12)
+[2023-11-24 00:40:42.776] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.2803@37398.26, ask=0.27801@37423.7, ts=2023-11-24 06:40:42.635308+00:00)
+[2023-11-24 00:40:42.776] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27801, prc=37423.7)
+[2023-11-24 00:40:53.571] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.5555@37384.02, ask=0.27801@37423.7, ts=2023-11-24 06:40:53.577125+00:00)
+[2023-11-24 00:40:53.572] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27801, prc=37423.7)
+[2023-11-24 00:40:53.618] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy processing quote: Quote (venue=Venue.ALPACA, symbol=BTC/USD, bid=0.2799@37399.52, ask=0.27801@37423.7, ts=2023-11-24 06:40:53.577274+00:00)
+[2023-11-24 00:40:53.619] [65172:6138966016] [DEBUG] [strategy_sma_btc -> app] strategy_sma_btc emitting Signal (venue=Venue.ALPACA, symbol=BTC/USD, exposure=Exposure.LONG, qty=0.27801, prc=37423.7)

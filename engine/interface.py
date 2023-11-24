@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Dict
 
+from alpaca.trading import OrderSide
+
 
 class Venue(int, Enum):
     ALPACA = 1
@@ -31,6 +33,12 @@ StrategyTypeMap: Dict[str, StrategyType] = {
 class Exposure(str, Enum):
     LONG = "LONG"
     SHORT = "SHORT"
+
+
+ExposureToSideMap: Dict[Exposure, OrderSide] = {
+    Exposure.LONG: OrderSide.BUY,
+    Exposure.SHORT: OrderSide.SELL,
+}
 
 
 class Quote:

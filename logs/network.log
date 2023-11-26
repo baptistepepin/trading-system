@@ -2,3 +2,4 @@
 [2023-11-26 14:38:15.207] [7763:6170996736] [INFO] [gateway_alpaca -> alpaca.common.websocket] starting data websocket connection
 [2023-11-26 14:38:15.367] [7763:6170996736] [INFO] [gateway_alpaca -> alpaca.common.websocket] connected to: wss://stream.data.alpaca.markets/v1beta3/crypto/us
 [2023-11-26 14:38:15.392] [7763:6170996736] [INFO] [gateway_alpaca -> alpaca.common.websocket] subscribed to trades: ['BTC/USD', 'ETH/USD'], quotes: ['BTC/USD', 'ETH/USD'], bars: ['BTC/USD', 'ETH/USD'], updatedBars: [], dailyBars: []
+[2023-11-26 14:57:17.944] [7763:6170996736] [INFO] [gateway_alpaca -> alpaca.common.websocket] data stream stopped

@@ -19,3 +19,10 @@
 [2023-11-26 14:55:00.239] [7763:6137344000] [DEBUG] [strategy_sma_btc -> app] strategy processing bar: Bar (venue=Venue.ALPACA, symbol=BTC/USD, open=37619.65, high=37619.65, low=37619.65, close=37619.65, volume=0.0, ts=2023-11-26 20:54:00+00:00)
 [2023-11-26 14:56:00.536] [7763:6137344000] [DEBUG] [strategy_sma_btc -> app] strategy processing bar: Bar (venue=Venue.ALPACA, symbol=BTC/USD, open=37597.7285, high=37597.7285, low=37583.045, close=37583.045, volume=0.0, ts=2023-11-26 20:55:00+00:00)
 [2023-11-26 14:57:00.314] [7763:6137344000] [DEBUG] [strategy_sma_btc -> app] strategy processing bar: Bar (venue=Venue.ALPACA, symbol=BTC/USD, open=37570.55, high=37597.595, low=37570.55, close=37597.595, volume=0.0, ts=2023-11-26 20:56:00+00:00)
+[2023-11-26 14:57:17.015] [7763:8189006592] [INFO] [MainThread -> app] Received signal: 2. Initiating shutdown.
+[2023-11-26 14:57:17.060] [7763:6154170368] [INFO] [strategy_strat1_btc -> app] strategy_strat1_btc stopped
+[2023-11-26 14:57:17.063] [7763:6113538048] [INFO] [engine -> app] engine stopping
+[2023-11-26 14:57:17.063] [7763:6113538048] [INFO] [engine -> app] gateway_alpaca stopping
+[2023-11-26 14:57:17.378] [7763:6137344000] [INFO] [strategy_sma_btc -> app] strategy_sma_btc stopped
+[2023-11-26 14:57:17.946] [7763:6113538048] [INFO] [engine -> app] engine stopped
+[2023-11-26 14:57:17.947] [7763:8189006592] [INFO] [MainThread -> app] SHUTDOWN

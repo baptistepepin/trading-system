@@ -1,6 +1,8 @@
 # standard
 import logging
 import queue
+import sqlite3
+
 import pyodbc
 from multiprocessing.context import Process
 from queue import SimpleQueue
@@ -43,15 +45,16 @@ class Engine(Thread):
         self.stopEvent = Event()
         # rx, self.tx = Pipe(duplex=False)
         # self.dashproc = Process(target=spawn_dashboard, args=(rx,))
-        #
-        # try:
-        #     self.dbcxn: pyodbc.Connection = pyodbc.connect(dsn=config['odbc']['dsn'], autocommit=True)
-        #     self.dbcxn.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
-        #     self.dbcxn.setencoding(encoding='utf-8')
-        #     # self.dbcxn.maxwrite = TODO documentation claims this needs to be arbitrarily large to avoid slow writes
-        # except Exception as e:
-        #     log.critical(f'database failure: {e}')
-        #     exit(1)
+
+        try:
+            # self.dbcxn: pyodbc.Connection = pyodbc.connect(dsn=config['odbc']['dsn'], autocommit=True)
+            self.dbcxn = sqlite3.connect('db_crypto.db')
+            # self.dbcxn.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
+            # self.dbcxn.setencoding(encoding='utf-8')
+            # self.dbcxn.maxwrite = TODO documentation claims this needs to be arbitrarily large to avoid slow writes
+        except Exception as e:
+            log.critical(f'database failure: {e}')
+            exit(1)
 
         # setup gateways
         for venueCfg in config['venues']:
@@ -133,6 +136,6 @@ class Engine(Thread):
 
             self.gateways[0].trade(market_order_data)  # 0 is hardcoded for Alpaca
 
-    def sig_handler(self, signum, frame):  # TODO this is a hack, need to fix this
+    def sig_handler(self, signum, frame):
         self.log.info(f"Received signal: {signum}. Initiating shutdown.")
         self.stopEvent.set()

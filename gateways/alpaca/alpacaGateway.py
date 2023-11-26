@@ -2,14 +2,14 @@
 import logging
 import alpaca
 from typing import List, Callable
+from alpaca.data.live import StockDataStream
 from alpaca.data.live.crypto import CryptoDataStream
-# local
-from engine.interface import Trade, Quote, Venue
-from gateways import gateway
-
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest
-from alpaca.trading.enums import OrderSide, TimeInForce
+
+# local
+from engine.interface import Trade, Quote, Venue, Bar
+from gateways import gateway
 
 
 class AlpacaGateway(gateway.Gateway):
@@ -17,13 +17,20 @@ class AlpacaGateway(gateway.Gateway):
                  config: dict,
                  quote_callback: Callable[[List[Quote]], None],
                  trade_callback: Callable[[List[Trade]], None],
+                 bar_callback: Callable[[List[Bar]], None],
                  log: logging.Logger):
-        super().__init__(config, quote_callback, trade_callback, log)
-        self.stream = CryptoDataStream(
+        super().__init__(config, quote_callback, trade_callback, bar_callback, log)
+        self.streamCrypto = CryptoDataStream(
             self.config['api_key'],
             self.config['secret_key'],
             raw_data=False,
             url_override=self.config['endpoints']['market_data']['crypto']
+        )
+        self.streamStocks = StockDataStream(
+            self.config['api_key'],
+            self.config['secret_key'],
+            raw_data=False,
+            url_override=self.config['endpoints']['market_data']['stocks']
         )
         self.trading = TradingClient(self.config['api_key'], self.config['secret_key'])
 
@@ -42,23 +49,46 @@ class AlpacaGateway(gateway.Gateway):
         trade.id = update.id
         self.trade_cb([trade])
 
-    def subscribe(self, symbols=None):
-        symbols = symbols if symbols else self.config['symbols']
-        if symbols:
-            self.stream.subscribe_quotes(self._on_quote, *symbols)
-            self.stream.subscribe_trades(self._on_trade, *symbols)
+    async def _on_bars(self, update: alpaca.data.models.bars.Bar):
+        bar = Bar(Venue.ALPACA, update.symbol, update.open, update.high, update.low, update.close, update.volume, update.timestamp)
+        self.bar_cb([bar])
 
-    def unsubscribe(self, symbols=None):
-        symbols = symbols if symbols else self.config['symbols']
-        if symbols:
-            self.stream.unsubscribe_quotes(*symbols)
-            self.stream.unsubscribe_trades(*symbols)
+    def subscribe(self, symbols_crypto=None, symbols_stocks=None):
+        symbols_crypto = symbols_crypto if symbols_crypto else self.config['symbols_crypto']
+        if symbols_crypto:
+            self.streamCrypto.subscribe_quotes(self._on_quote, *symbols_crypto)
+            self.streamCrypto.subscribe_trades(self._on_trade, *symbols_crypto)
+            self.streamCrypto.subscribe_bars(self._on_bars, *symbols_crypto)
+
+        symbols_stocks = symbols_stocks if symbols_stocks else self.config['symbols_stocks']
+        if symbols_stocks:
+            self.streamStocks.subscribe_quotes(self._on_quote, *symbols_stocks)
+            self.streamStocks.subscribe_trades(self._on_trade, *symbols_stocks)
+            self.streamStocks.subscribe_bars(self._on_bars, *symbols_stocks)
+
+    def unsubscribe(self, symbols_crypto=None, symbols_stocks=None):
+        symbols_crypto = symbols_crypto if symbols_crypto else self.config['symbols_crypto']
+        if symbols_crypto:
+            self.streamCrypto.unsubscribe_quotes(*symbols_crypto)
+            self.streamCrypto.unsubscribe_trades(*symbols_crypto)
+            self.streamCrypto.unsubscribe_bars(*symbols_crypto)
+
+        symbols_stocks = symbols_stocks if symbols_stocks else self.config['symbols_stocks']
+        if symbols_stocks:
+            self.streamStocks.unsubscribe_quotes(*symbols_stocks)
+            self.streamStocks.unsubscribe_trades(*symbols_stocks)
+            self.streamStocks.unsubscribe_bars(*symbols_stocks)
 
     def activate(self):
-        self.stream.run()
+        self.streamCrypto.run()
+        # self.streamStocks.run()
 
     def deactivate(self):
-        self.stream.stop()
+        self.streamCrypto.stop()
+        # self.streamStocks.stop()
 
     def trade(self, market_order: MarketOrderRequest):
-        self.trading.submit_order(order_data=market_order)
+        try:
+            self.trading.submit_order(order_data=market_order)
+        except Exception as e:
+            self.log.error(f"failed to submit order: {e}")

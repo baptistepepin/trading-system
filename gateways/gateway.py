@@ -6,7 +6,7 @@ from typing import List, Callable
 
 from alpaca.trading import MarketOrderRequest
 
-from engine.interface import Quote, Trade
+from engine.interface import Quote, Trade, Bar
 
 
 class Gateway(ABC, Thread):
@@ -18,11 +18,13 @@ class Gateway(ABC, Thread):
                  config: dict,
                  quote_callback: Callable[[List[Quote]], None],
                  trade_callback: Callable[[List[Trade]], None],
+                 bar_callback: Callable[[List[Bar]], None],
                  log: logging.Logger):
         super().__init__(name=f"{config['name']}")
         self.config = config
         self.quote_cb = quote_callback
         self.trade_cb = trade_callback
+        self.bar_cb = bar_callback
         self.log = log
 
     @abstractmethod

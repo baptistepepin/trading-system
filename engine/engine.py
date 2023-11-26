@@ -14,7 +14,7 @@ from typing import Dict, Callable, DefaultDict, List
 from alpaca.trading import MarketOrderRequest, TimeInForce, OrderType
 
 # local
-from engine.interface import Trade, Quote, Signal, Venue, StrategyType, StrategyTypeMap, VenueMap, ExposureToSideMap
+from engine.interface import Trade, Quote, Signal, Venue, StrategyType, StrategyTypeMap, VenueMap, ExposureToSideMap, Bar
 from gateways.alpaca.alpacaGateway import AlpacaGateway
 from gui.dashboard import spawn_dashboard
 from strategies.SMA.sma import SMAStrategy
@@ -24,7 +24,7 @@ from gateways.gateway import Gateway
 
 
 gatewayFactory: Dict[int, Callable[..., Gateway]] = {
-    Venue.ALPACA: lambda cfg, qcb, tcb, log: AlpacaGateway(cfg, qcb, tcb, log)
+    Venue.ALPACA: lambda cfg, qcb, tcb, bcb, log: AlpacaGateway(cfg, qcb, tcb, bcb, log)
 }
 
 strategyFactory: Dict[int, Callable[..., Strategy]] = {
@@ -60,7 +60,7 @@ class Engine(Thread):
         for venueCfg in config['venues']:
             try:
                 v = VenueMap[venueCfg['api']]
-                gateway = gatewayFactory[v](venueCfg, self.handle_quotes, self.handle_trades, log)
+                gateway = gatewayFactory[v](venueCfg, self.handle_quotes, self.handle_trades, self.handle_bars, log)
                 self.gateways.append(gateway)
             except KeyError:
                 log.critical(f"unsupported venue: {venueCfg['api']}")
@@ -120,6 +120,13 @@ class Engine(Thread):
             # self.tx.send(trade)
             for strategy in self.routing[trade.venue][trade.symbol]:
                 strategy.handle_trades([trade])
+
+    def handle_bars(self, bars: List[Bar]):
+        for bar in bars:
+            self.dataLog.info(bar)
+            # self.tx.send(bar)
+            for strategy in self.routing[bar.venue][bar.symbol]:
+                strategy.handle_bars([bar])
 
     def handle_signals(self, signals: List[Signal]):
         for signal in signals:

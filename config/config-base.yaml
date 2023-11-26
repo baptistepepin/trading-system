@@ -69,9 +69,11 @@ venues:
       order_management:
         stocks:
         crypto:
-    symbols:
+    symbols_crypto:
       - BTC/USD
       - ETH/USD
+    symbols_stocks:
+      - SPY
 strategies:
   - type: sma
     name: strategy_sma_btc

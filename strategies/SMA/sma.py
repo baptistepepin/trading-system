@@ -1,7 +1,8 @@
 import logging
 import queue
+import sqlite3
 from typing import List, Callable
-from engine.interface import Trade, Quote, Signal, Exposure
+from engine.interface import Trade, Quote, Signal, Exposure, Bar
 from strategies.strategy import Strategy
 from threading import Event
 import pandas as pd
@@ -34,10 +35,23 @@ class SMAStrategy(Strategy):
                 pass
             else:
                 self.process_quote(quote)
+
+            try:
+                bar = self.barBuffer.get(timeout=1)
+            except queue.Empty:
+                pass
+            else:
+                self.process_bar(bar)
         self.log.info(f"{self.config['name']} stopped")
 
     def process_quote(self, quote: Quote):
         self.log.debug(f"strategy processing quote: {quote}")
+        conn = sqlite3.connect('db_crypto.db')
+        quote_df = pd.DataFrame([[quote.timestamp, quote.symbol, quote.bid_prc, quote.bid_qty, quote.ask_prc, quote.ask_qty]],
+                                columns=['timestamp', 'symbol', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty'])
+        quote_df.to_sql('quotes', conn, if_exists='append', index=False)
+        conn.commit()
+        conn.close()
         self.short_bid.append(quote.bid_prc)
         self.long_bid.append(quote.bid_prc)
         self.short_ask.append(quote.ask_prc)
@@ -55,3 +69,13 @@ class SMAStrategy(Strategy):
             signal = Signal(quote.venue, quote.symbol, Exposure.SHORT, quote.bid_qty, quote.bid_prc)
             self.log.debug(f"{self.config['name']} emitting {signal}")
             self._emit_signals([signal])
+
+    def process_bar(self, bar: Bar):
+        self.log.debug(f"strategy processing bar: {bar}")
+        conn = sqlite3.connect('db_crypto.db')
+        bar_df = pd.DataFrame(
+            [[bar.timestamp, bar.symbol, bar.open, bar.high, bar.low, bar.close, bar.volume]],
+            columns=['timestamp', 'symbol', 'open', 'high', 'low', 'close', 'volume'])
+        bar_df.to_sql('bars', conn, if_exists='append', index=False)
+        conn.commit()
+        conn.close()

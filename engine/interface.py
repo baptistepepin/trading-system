@@ -1,5 +1,4 @@
 # standard
-# TODO review this
 from enum import Enum
 from dataclasses import dataclass
 from datetime import datetime
@@ -68,6 +67,24 @@ class Trade:
 
     def __repr__(self):
         return f"Trade (venue={self.venue}, symbol={self.symbol}, price={self.price}, volume={self.volume}, ts={self.timestamp})"
+
+
+class Bar:
+    def __init__(self, venue: Venue, symbol: str, open: float, high: float, low: float, close: float, volume: float, timestamp: datetime):
+        self.venue = venue
+        self.symbol = symbol
+        self.open: float = open
+        self.high: float = high
+        self.low: float = low
+        self.close: float = close
+        self.volume: float = volume
+        self.trade_count: Optional[float] = None
+        self.vwap: Optional[float] = None
+        self.exchange: Optional[float] = None
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f"Bar (venue={self.venue}, symbol={self.symbol}, open={self.open}, high={self.high}, low={self.low}, close={self.close}, volume={self.volume}, ts={self.timestamp})"
 
 
 class Signal:

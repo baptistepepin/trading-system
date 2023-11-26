@@ -4,8 +4,8 @@ from alpaca_trade_api.rest import REST, TimeFrame, TimeFrameUnit
 import sqlite3
 
 
-API_KEY = 'PK3NK5R2SOD48L3GHAZF'
-API_SECRET = '6EhihI1TNdlLuOOabojy6THbBKNXXHq5Ebch7cWR'
+API_KEY = 'PKPN404QD7XJI5WRH41C'
+API_SECRET = 'BN9cnjvRFnXOSXlbkAv6LxLDUp41LbrwZSgOsmXD'
 BASE_URL = URL('https://paper-api.alpaca.markets')
 api = tradeapi.REST(API_KEY, API_SECRET, base_url=BASE_URL, api_version='v2')
 

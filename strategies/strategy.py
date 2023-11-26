@@ -41,5 +41,3 @@ class Strategy(ABC, Thread):
     @abstractmethod
     def run(self):
         raise NotImplementedError
-
-

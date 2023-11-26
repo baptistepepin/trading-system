@@ -6,13 +6,16 @@ import logging.config
 import signal
 # local
 from config.configuration import resolve_yaml_config
+from data.cryptoDatabase import CryptoDatabase
 from engine.engine import Engine
 
 
 def main(config):
     log = logging.getLogger('app')
     log.info('STARTUP')
-    engine = Engine(config, log)
+    cryptoDatabase = CryptoDatabase(config, log, '2023-10-01')
+    cryptoDatabase.close()
+    engine = Engine(config, log, cryptoDatabase)
     signal.signal(signal.SIGINT, engine.sig_handler)
     engine.start()
     engine.join()

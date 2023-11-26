@@ -60,11 +60,11 @@ class AlpacaGateway(gateway.Gateway):
             self.streamCrypto.subscribe_trades(self._on_trade, *symbols_crypto)
             self.streamCrypto.subscribe_bars(self._on_bars, *symbols_crypto)
 
-        symbols_stocks = symbols_stocks if symbols_stocks else self.config['symbols_stocks']
-        if symbols_stocks:
-            self.streamStocks.subscribe_quotes(self._on_quote, *symbols_stocks)
-            self.streamStocks.subscribe_trades(self._on_trade, *symbols_stocks)
-            self.streamStocks.subscribe_bars(self._on_bars, *symbols_stocks)
+        # symbols_stocks = symbols_stocks if symbols_stocks else self.config['symbols_stocks']
+        # if symbols_stocks:
+        #     self.streamStocks.subscribe_quotes(self._on_quote, *symbols_stocks)
+        #     self.streamStocks.subscribe_trades(self._on_trade, *symbols_stocks)
+        #     self.streamStocks.subscribe_bars(self._on_bars, *symbols_stocks)
 
     def unsubscribe(self, symbols_crypto=None, symbols_stocks=None):
         symbols_crypto = symbols_crypto if symbols_crypto else self.config['symbols_crypto']
@@ -73,11 +73,11 @@ class AlpacaGateway(gateway.Gateway):
             self.streamCrypto.unsubscribe_trades(*symbols_crypto)
             self.streamCrypto.unsubscribe_bars(*symbols_crypto)
 
-        symbols_stocks = symbols_stocks if symbols_stocks else self.config['symbols_stocks']
-        if symbols_stocks:
-            self.streamStocks.unsubscribe_quotes(*symbols_stocks)
-            self.streamStocks.unsubscribe_trades(*symbols_stocks)
-            self.streamStocks.unsubscribe_bars(*symbols_stocks)
+        # symbols_stocks = symbols_stocks if symbols_stocks else self.config['symbols_stocks']
+        # if symbols_stocks:
+        #     self.streamStocks.unsubscribe_quotes(*symbols_stocks)
+        #     self.streamStocks.unsubscribe_trades(*symbols_stocks)
+        #     self.streamStocks.unsubscribe_bars(*symbols_stocks)
 
     def activate(self):
         self.streamCrypto.run()

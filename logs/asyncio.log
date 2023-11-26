@@ -1,1 +1,1 @@
-[2023-11-24 11:11:22.543] [67466:10938920960] [DEBUG] [gateway_alpaca -> asyncio] Using selector: KqueueSelector
+[2023-11-26 14:38:15.206] [7763:6170996736] [DEBUG] [gateway_alpaca -> asyncio] Using selector: KqueueSelector

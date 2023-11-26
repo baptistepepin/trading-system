@@ -1,9 +1,4 @@
-import sqlite3
 import pandas as pd
-
-conn = sqlite3.connect('db_crypto.db')
-
-df_crypto = pd.read_sql_query("SELECT * from crypto_bars", conn)
 
 # Calculate some technical indicators
 
@@ -85,6 +80,3 @@ def create_indicators(data):
         res.append(df)
 
     return pd.concat(res)
-
-
-conn.close()

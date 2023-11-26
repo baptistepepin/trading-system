@@ -3,6 +3,7 @@ import logging
 import queue
 import sqlite3
 
+import pandas as pd
 import pyodbc
 from multiprocessing.context import Process
 from queue import SimpleQueue
@@ -28,13 +29,13 @@ gatewayFactory: Dict[int, Callable[..., Gateway]] = {
 }
 
 strategyFactory: Dict[int, Callable[..., Strategy]] = {
-    StrategyType.SMA: lambda cfg, qcb, log, stopper: SMAStrategy(cfg, qcb, log, stopper),
-    StrategyType.Strat1: lambda cfg, qcb, log, stopper: Strat1Strategy(cfg, qcb, log, stopper)
+    StrategyType.SMA: lambda cfg, scb, log, stopper: SMAStrategy(cfg, scb, log, stopper),
+    StrategyType.Strat1: lambda cfg, scb, log, stopper: Strat1Strategy(cfg, scb, log, stopper)
 }
 
 
 class Engine(Thread):
-    def __init__(self, config, log: logging.Logger):
+    def __init__(self, config, log: logging.Logger, cryptoDatabase):
         super().__init__(name="engine")
         self.log: logging.Logger = log
         self.dataLog = logging.getLogger('data')
@@ -43,15 +44,13 @@ class Engine(Thread):
         self.strategies: List[Strategy] = []
         self.signalBuffer = SimpleQueue()
         self.stopEvent = Event()
+        self.dbcxn = cryptoDatabase
         # rx, self.tx = Pipe(duplex=False)
         # self.dashproc = Process(target=spawn_dashboard, args=(rx,))
 
         try:
-            # self.dbcxn: pyodbc.Connection = pyodbc.connect(dsn=config['odbc']['dsn'], autocommit=True)
-            self.dbcxn = sqlite3.connect('db_crypto.db')
-            # self.dbcxn.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
-            # self.dbcxn.setencoding(encoding='utf-8')
-            # self.dbcxn.maxwrite = TODO documentation claims this needs to be arbitrarily large to avoid slow writes
+            self.dbcxn.open()
+            self.dbcxn.close()
         except Exception as e:
             log.critical(f'database failure: {e}')
             exit(1)
@@ -79,11 +78,11 @@ class Engine(Thread):
                     for symbol in strategyCfg['symbols']:
                         self.routing[v][symbol].append(strategy)
                 self.strategies.append(strategy)
-            except KeyError:
-                log.critical(f"unsupported venue: {strategyCfg['api']}")
+            except KeyError as e:
+                log.critical(f"unsupported venue: {e}")
                 exit(1)
             except Exception as e:
-                log.critical(f"failed to instantiate strategy: {strategyCfg['api']}")
+                log.critical(f"failed to instantiate strategy: {e}")
                 exit(1)
 
     def run(self):
@@ -110,6 +109,14 @@ class Engine(Thread):
     def handle_quotes(self, quotes: List[Quote]):
         for quote in quotes:
             self.dataLog.info(quote)
+            # TODO: add a quote message in database log
+            self.dbcxn.open()
+            quote_df = pd.DataFrame(
+                [[quote.timestamp, quote.symbol, quote.bid_prc, quote.bid_qty, quote.ask_prc, quote.ask_qty]],
+                columns=['timestamp', 'symbol', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty'])
+            quote_df.to_sql('quotes', self.dbcxn.conn, if_exists='append', index=False)
+            self.dbcxn.conn.commit()
+            self.dbcxn.close()
             # self.tx.send(quote)
             for strategy in self.routing[quote.venue][quote.symbol]:
                 strategy.handle_quotes([quote])
@@ -124,6 +131,7 @@ class Engine(Thread):
     def handle_bars(self, bars: List[Bar]):
         for bar in bars:
             self.dataLog.info(bar)
+            self.dbcxn.update_database()
             # self.tx.send(bar)
             for strategy in self.routing[bar.venue][bar.symbol]:
                 strategy.handle_bars([bar])

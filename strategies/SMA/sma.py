@@ -17,11 +17,12 @@ class SMAStrategy(Strategy):
                  log: logging.Logger,
                  stopEvent: Event):
         super().__init__(config, signal_callback, log, stopEvent)
-        self.short_bid = deque(maxlen=10)
-        self.long_bid = deque(maxlen=20)
+        self.short_bid = deque(maxlen=28800)
+        self.long_bid = deque(maxlen=72000)
         self.short_ask = deque(maxlen=10)
         self.long_ask = deque(maxlen=20)
         self.df_book = pd.DataFrame(columns=['timestamp', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty', 'signal'])
+        self.init_deque()
 
     def handle_trades(self, trades: List[Trade]):
         pass  # do not consume trades
@@ -29,12 +30,12 @@ class SMAStrategy(Strategy):
     def run(self):
         self.log.info(f"{self.config['name']} started")
         while not self.stopEvent.is_set():
-            try:
-                quote = self.quoteBuffer.get(timeout=1)
-            except queue.Empty:
-                pass
-            else:
-                self.process_quote(quote)
+        #     try:
+        #         quote = self.quoteBuffer.get(timeout=1)
+        #     except queue.Empty:
+        #         pass
+        #     else:
+        #         self.process_quote(quote)
 
             try:
                 bar = self.barBuffer.get(timeout=1)
@@ -44,38 +45,35 @@ class SMAStrategy(Strategy):
                 self.process_bar(bar)
         self.log.info(f"{self.config['name']} stopped")
 
+    def init_deque(self):
+        conn = sqlite3.connect('db_crypto.db')
+        df = pd.read_sql_query(f"SELECT * FROM bars WHERE symbol == '{self.config['symbols'][0]}'", conn)  # 0 to get the first symbol
+        df.sort_values(by=['timestamp'], inplace=True)
+        self.short_bid.extend(df['close'].tail(28800))  # 60min * 24h * 20d = 28800
+        self.long_bid.extend(df['close'].tail(72000))  # 60min * 24h * 50d = 72000
+
     def process_quote(self, quote: Quote):
         self.log.debug(f"strategy processing quote: {quote}")
-        conn = sqlite3.connect('db_crypto.db')
-        quote_df = pd.DataFrame([[quote.timestamp, quote.symbol, quote.bid_prc, quote.bid_qty, quote.ask_prc, quote.ask_qty]],
-                                columns=['timestamp', 'symbol', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty'])
-        quote_df.to_sql('quotes', conn, if_exists='append', index=False)
-        conn.commit()
-        conn.close()
-        self.short_bid.append(quote.bid_prc)
-        self.long_bid.append(quote.bid_prc)
-        self.short_ask.append(quote.ask_prc)
-        self.long_ask.append(quote.ask_prc)
-        short_bid_prc = sum(self.short_bid) / len(self.short_bid)
-        long_bid_prc = sum(self.long_bid) / len(self.long_bid)
-        short_ask_prc = sum(self.short_ask) / len(self.short_ask)
-        long_ask_prc = sum(self.long_ask) / len(self.long_ask)
-
-        if short_ask_prc > long_ask_prc:
-            signal = Signal(quote.venue, quote.symbol, Exposure.LONG, quote.ask_qty, quote.ask_prc)
-            self.log.debug(f"{self.config['name']} emitting {signal}")
-            self._emit_signals([signal])
-        elif short_bid_prc > long_bid_prc:
-            signal = Signal(quote.venue, quote.symbol, Exposure.SHORT, quote.bid_qty, quote.bid_prc)
-            self.log.debug(f"{self.config['name']} emitting {signal}")
-            self._emit_signals([signal])
+        pass
 
     def process_bar(self, bar: Bar):
         self.log.debug(f"strategy processing bar: {bar}")
-        conn = sqlite3.connect('db_crypto.db')
-        bar_df = pd.DataFrame(
-            [[bar.timestamp, bar.symbol, bar.open, bar.high, bar.low, bar.close, bar.volume]],
-            columns=['timestamp', 'symbol', 'open', 'high', 'low', 'close', 'volume'])
-        bar_df.to_sql('bars', conn, if_exists='append', index=False)
-        conn.commit()
-        conn.close()
+
+        self.short_bid.append(bar.close)
+        self.long_bid.append(bar.close)
+
+        if len(self.short_bid) == self.short_bid.maxlen and len(self.long_bid) == self.long_bid.maxlen:
+            short_sma = np.mean(self.short_bid)
+            long_sma = np.mean(self.long_bid)
+
+            # Determine the trading signal
+            if short_sma > long_sma:
+                # Short-term SMA crosses above long-term SMA - Buy Signal
+                signal = Signal(bar.venue, bar.symbol, Exposure.LONG, bar.volume, bar.close)
+                self.log.debug(f"{self.config['name']} emitting Buy signal: {signal}")
+                self._emit_signals([signal])
+            elif short_sma < long_sma:
+                # Short-term SMA crosses below long-term SMA - Sell Signal
+                signal = Signal(bar.venue, bar.symbol, Exposure.SHORT, bar.volume, bar.close)
+                self.log.debug(f"{self.config['name']} emitting Sell signal: {signal}")
+                self._emit_signals([signal])

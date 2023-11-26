@@ -79,3 +79,7 @@ strategies:
     name: strategy_sma_btc
     venues: ['alpaca']
     symbols: ['BTC/USD']
+  - type: strat1
+    name: strategy_strat1_btc
+    venues: ['alpaca']
+    symbols: ['SPY']

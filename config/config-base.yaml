@@ -1,67 +1,77 @@
 logging:
-  version: 1 # meaningless yet required by logging.config.dictConfig
+  version: 1  # meaningless yet required by logging.config.dictConfig
   formatters:
     default:
       format: "[%(asctime)s.%(msecs)03d] [%(process)d:%(thread)d] [%(levelname)s] [%(threadName)s -> %(name)s] %(message)s"
       datefmt: "%Y-%m-%d %H:%M:%S"
-    handlers:
-      console:
-        class: logging.StreamHandler
-        level: INFO
-        stream: ext://sys.stdout
-        formatter: default
-      activity:
-        class: logging.FileHandler
-        level: DEBUG
-        filename: ${LOGDIR}/activity.log
-        encoding: utf-8
-        mode: w
-        formatter: default
-      asyncio:
-        class: logging.FileHandler
-        level: DEBUG
-        filename: ${LOGDIR}/asyncio.log
-        mode: w
-        formatter: default
-      health:
-        class: logging.FileHandler
-        level: ERROR
-        filename: ${LOGDIR}/health.log
-        encoding: utf-8
-        mode: w
-        formatter: default
-      network:
-        class: logging.FileHandler
-        level: DEBUG
-        filename: ${LOGDIR}/network.log
-        encoding: utf-8
-        mode: w
-        formatter: default
-      data:
-        class: logging.FileHandler
-        level: INFO
-        filename: ${LOGDIR}/data.log
-        encoding: utf-8
-        mode: w
-        formatter: default
-    loggers:
-      app:
-        handlers: [console, activity, health]
-        level: DEBUG
-      data:
-        handlers: [data]
-        level: DEBUG
-      alpaca.common.websocket:
-        handlers: [network, health]
-        level: DEBUG
-      asyncio:
-        handlers: [asyncio, health]
-        level: DEBUG
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: INFO
+      stream: ext://sys.stdout
+      formatter: default
+    activity:
+      class: logging.FileHandler
+      level: DEBUG
+      filename: ${LOGDIR}/activity.log
+      encoding: utf-8
+      mode: w
+      formatter: default
+    asyncio:
+      class: logging.FileHandler
+      level: DEBUG
+      filename: ${LOGDIR}/asyncio.log
+      mode: w
+      formatter: default
+    health:
+      class: logging.FileHandler
+      level: ERROR
+      filename: ${LOGDIR}/health.log
+      encoding: utf-8
+      mode: w
+      formatter: default
+    network:
+      class: logging.FileHandler
+      level: DEBUG
+      filename: ${LOGDIR}/network.log
+      encoding: utf-8
+      mode: w
+      formatter: default
+    data:
+      class: logging.FileHandler
+      level: INFO
+      filename: ${LOGDIR}/data.log
+      encoding: utf-8
+      mode: w
+      formatter: default
+    database:
+      class: logging.FileHandler
+      level: INFO
+      filename: ${LOGDIR}/database.log
+      encoding: utf-8
+      mode: w
+      formatter: default
+  loggers:
+    app:
+      handlers: [console, activity, health]
+      level: DEBUG
+    data:
+      handlers: [data]
+      level: DEBUG
+    alpaca.common.websocket:
+      handlers: [network, health]
+      level: DEBUG
+    asyncio:
+      handlers: [asyncio, health]
+      level: DEBUG
+    database:
+      handlers: [database]
+      level: DEBUG
 venues:
   - api: alpaca
     name: gateway_alpaca
     api_key: ${ALPACA_API_KEY}
-    api_secret: ${ALPACA_SECRET_KEY}
+    secret_key: ${ALPACA_SECRET_KEY}
     endpoints:
       market_data:
         stocks: wss://stream.data.alpaca.markets/v2/iex
@@ -83,3 +93,9 @@ strategies:
     name: strategy_strat1_btc
     venues: ['alpaca']
     symbols: ['SPY']
+database:  # This database is used for storing data from Alpaca only
+  api_key: ${ALPACA_API_KEY}
+  secret_key: ${ALPACA_SECRET_KEY}
+  symbols_crypto:
+    - BTC/USD
+    - ETH/USD

@@ -16,11 +16,6 @@ class Strat1Strategy(Strategy):
                  log: logging.Logger,
                  stopEvent: Event):
         super().__init__(config, signal_callback, log, stopEvent)
-        self.short_bid = deque(maxlen=10)
-        self.long_bid = deque(maxlen=20)
-        self.short_ask = deque(maxlen=10)
-        self.long_ask = deque(maxlen=20)
-        self.df_book = pd.DataFrame(columns=['timestamp', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty', 'signal'])
 
     def handle_trades(self, trades: List[Trade]):
         pass  # do not consume trades
@@ -38,13 +33,4 @@ class Strat1Strategy(Strategy):
 
     def process_quote(self, quote: Quote):
         self.log.debug(f"strategy processing quote: {quote}")
-        # # processing of the quotes
-        #
-        # if #condition:
-        #     signal = Signal(quote.venue, quote.symbol, Exposure.LONG, quote.ask_qty, quote.ask_prc)
-        #     self.log.debug(f"{self.config['name']} emitting {signal}")
-        #     self._emit_signals([signal])
-        # elif #condition:
-        #     signal = Signal(quote.venue, quote.symbol, Exposure.SHORT, quote.bid_qty, quote.bid_prc)
-        #     self.log.debug(f"{self.config['name']} emitting {signal}")
-        #     self._emit_signals([signal])
+        pass

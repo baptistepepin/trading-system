@@ -19,24 +19,11 @@ class SMAStrategy(Strategy):
         super().__init__(config, signal_callback, log, stopEvent)
         self.short_bid = deque(maxlen=28800)
         self.long_bid = deque(maxlen=72000)
-        self.short_ask = deque(maxlen=10)
-        self.long_ask = deque(maxlen=20)
-        self.df_book = pd.DataFrame(columns=['timestamp', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty', 'signal'])
         self.init_deque()
-
-    def handle_trades(self, trades: List[Trade]):
-        pass  # do not consume trades
 
     def run(self):
         self.log.info(f"{self.config['name']} started")
         while not self.stopEvent.is_set():
-        #     try:
-        #         quote = self.quoteBuffer.get(timeout=1)
-        #     except queue.Empty:
-        #         pass
-        #     else:
-        #         self.process_quote(quote)
-
             try:
                 bar = self.barBuffer.get(timeout=1)
             except queue.Empty:
@@ -52,10 +39,6 @@ class SMAStrategy(Strategy):
         self.short_bid.extend(df['close'].tail(28800))  # 60min * 24h * 20d = 28800
         self.long_bid.extend(df['close'].tail(72000))  # 60min * 24h * 50d = 72000
 
-    def process_quote(self, quote: Quote):
-        self.log.debug(f"strategy processing quote: {quote}")
-        pass
-
     def process_bar(self, bar: Bar):
         self.log.debug(f"strategy processing bar: {bar}")
 
@@ -67,13 +50,14 @@ class SMAStrategy(Strategy):
             long_sma = np.mean(self.long_bid)
 
             # Determine the trading signal
+            # TODO: Add a better way to choose quantity to sell and buy
             if short_sma > long_sma:
                 # Short-term SMA crosses above long-term SMA - Buy Signal
-                signal = Signal(bar.venue, bar.symbol, Exposure.LONG, bar.volume, bar.close)
+                signal = Signal(bar.venue, bar.symbol, Exposure.LONG, 0.01, bar.close)
                 self.log.debug(f"{self.config['name']} emitting Buy signal: {signal}")
                 self._emit_signals([signal])
             elif short_sma < long_sma:
                 # Short-term SMA crosses below long-term SMA - Sell Signal
-                signal = Signal(bar.venue, bar.symbol, Exposure.SHORT, bar.volume, bar.close)
+                signal = Signal(bar.venue, bar.symbol, Exposure.SHORT, 0.01, bar.close)
                 self.log.debug(f"{self.config['name']} emitting Sell signal: {signal}")
                 self._emit_signals([signal])

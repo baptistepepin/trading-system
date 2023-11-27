@@ -1,5 +1,14 @@
 # Trading System Project
 
+In order to run this program, please create a `config.yaml` file using th `config-base.yaml` file as a template. You will need to fill in the API keys and secret keys for Alpaca and the database. You will also need to fill in the folder for the logs.
+
+```python
+    ALPACA_API_KEY = Y0UR4API7K3Y
+    ALPACA_SECRET_KEY = TH15i5y0ur53CR3tK3Y
+    
+    LOGDIR = logs
+```
+
 ## 1. Introduction
 
 The trading system we've developed is an algorithmic solution designed to automate trading activities in financial markets. This system employs a combination of real-time data analysis, technical indicators, and a decision-making framework to execute trades. The primary goal is to capitalize on market movements by making informed, data-driven decisions, thus enhancing the potential for profitability.
@@ -555,7 +564,34 @@ Utilizing Alpaca's paper trading feature provides a valuable platform to test an
 
 ## 9. Results and Lessons Learned
 
-Reflect on the results of your project. Discuss any challenges encountered, lessons learned, and potential improvements for future iterations.
+Reflecting on the results of the SMA strategy project for BTC/USD, several key insights and lessons have been gathered, along with identification of challenges and areas for future improvements.
+
+### Results
+
+- **Performance**: The backtest showed the strategy's ability to capture trends in the BTC/USD market, as indicated by the total return calculated from the simulated portfolio. This is an encouraging sign of the strategy's potential.
+- **Consistency**: The strategy displayed a level of consistency in generating signals based on SMA crossovers, highlighting the usefulness of moving averages in trend-following strategies.
+
+### Challenges Encountered
+
+1. **Market Volatility**: BTC/USD is known for its high volatility, which presented challenges in maintaining consistent returns and managing risks.
+2. **False Signals**: The strategy occasionally generated false signals, leading to unprofitable trades. This is a common issue with SMA crossover strategies.
+3. **Overfitting**: There was a risk of overfitting the strategy to historical data, which might not accurately predict future market conditions.
+
+### Lessons Learned
+
+1. **Importance of Risk Management**: The project reinforced the critical role of effective risk management, especially in volatile markets like cryptocurrencies.
+2. **Adaptability**: The necessity to adapt the strategy to changing market conditions became apparent, highlighting the importance of flexibility in algorithmic trading.
+3. **Data Quality and Handling**: The process of handling and processing large datasets for backtesting was enlightening, underscoring the need for meticulous data management.
+4. **Transaction Costs and Slippage**: These factors can significantly impact the strategy's performance and should always be considered in backtesting and live trading.
+
+### Potential Improvements
+
+1. **Parameter Optimization**: Further tuning of SMA periods and other parameters could potentially enhance the strategy's effectiveness.
+2. **Incorporating Additional Indicators**: Adding more technical indicators or even integrating fundamental analysis might help in reducing false signals and capturing more profitable opportunities.
+3. **Dynamic Position Sizing**: Implementing a more dynamic position-sizing method based on current market volatility or the portfolio's equity curve could improve risk-adjusted returns.
+4. **Machine Learning Integration**: Applying machine learning techniques for more sophisticated market prediction and signal generation could be a valuable addition in future iterations.
+
+The project provided valuable insights into the practical aspects of developing and backtesting a trading strategy. While the SMA strategy showed promise, it also highlighted the complexities and challenges inherent in algorithmic trading. The lessons learned from this exercise are crucial stepping stones for further development and refinement of the strategy.
 
 ## 10. Compliance and Legal Considerations
 

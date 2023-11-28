@@ -18,6 +18,7 @@ from alpaca.trading import MarketOrderRequest, TimeInForce, OrderType
 from engine.interface import Trade, Quote, Signal, Venue, StrategyType, StrategyTypeMap, VenueMap, ExposureToSideMap, Bar
 from gateways.alpaca.alpacaGateway import AlpacaGateway
 from gui.dashboard import spawn_dashboard
+from strategies.RSI.rsi import RSIStrategy
 from strategies.SMA.sma import SMAStrategy
 from strategies.Strat1.Strat1 import Strat1Strategy
 from strategies.strategy import Strategy
@@ -30,6 +31,7 @@ gatewayFactory: Dict[int, Callable[..., Gateway]] = {
 
 strategyFactory: Dict[int, Callable[..., Strategy]] = {
     StrategyType.SMA: lambda cfg, scb, log, stopper: SMAStrategy(cfg, scb, log, stopper),
+    StrategyType.RSI: lambda cfg, scb, log, stopper: RSIStrategy(cfg, scb, log, stopper),
     StrategyType.Strat1: lambda cfg, scb, log, stopper: Strat1Strategy(cfg, scb, log, stopper)
 }
 

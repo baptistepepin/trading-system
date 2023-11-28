@@ -45,8 +45,9 @@ def add_RSI_indic(data, column_name='close', window_length=14):
         avg_gains.append((avg_gains[i - 1] * 13 + gains[i]) / 14)
         avg_losses.append((avg_losses[i - 1] * 13 + losses[i]) / 14)
     RSI = 100 - (100 / (1 + pd.DataFrame(avg_gains) / -pd.DataFrame(avg_losses)))
-    RSI.index = data.index
-    data[column_name + " RSI"] = RSI
+    # RSI.index = data.index
+    # data[column_name + " RSI"] = RSI
+    return RSI
 
 
 def add_ATR_indic(data, column_name='close', window_length=14):

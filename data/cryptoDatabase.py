@@ -20,6 +20,7 @@ class CryptoDatabase:
         self.open()
         self.initialize_database()
         self.populate_database(start_date)
+        self.close()
 
     def initialize_database(self):
         self.databaseLog.info('Initializing database...')

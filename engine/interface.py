@@ -20,12 +20,14 @@ VenueMap: Dict[str, Venue] = {
 
 class StrategyType(int, Enum):
     SMA = 1
-    Strat1 = 2
+    RSI = 2
+    Strat1 = 3
     # Add other strategies as needed
 
 
 StrategyTypeMap: Dict[str, StrategyType] = {
     'sma': StrategyType.SMA,
+    'rsi': StrategyType.RSI,
     'strat1': StrategyType.Strat1,
     # Add other strategy types as needed
 }

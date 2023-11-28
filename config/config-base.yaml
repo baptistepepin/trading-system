@@ -91,12 +91,18 @@ strategies:
     secret_key: ${ALPACA_SECRET_KEY}
     venues: ['alpaca']
     symbols: ['BTC/USD']
+  - type: rsi
+    name: strategy_rsi_btc
+    api_key: ${ALPACA_API_KEY}
+    secret_key: ${ALPACA_SECRET_KEY}
+    venues: ['alpaca']
+    symbols: []
   - type: strat1
     name: strategy_strat1_btc
     api_key: ${ALPACA_API_KEY}
     secret_key: ${ALPACA_SECRET_KEY}
     venues: ['alpaca']
-    symbols: ['SPY']
+    symbols: []
 database:  # This database is used for storing data from Alpaca only
   api_key: ${ALPACA_API_KEY}
   secret_key: ${ALPACA_SECRET_KEY}

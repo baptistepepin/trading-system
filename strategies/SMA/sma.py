@@ -38,7 +38,7 @@ class SMAStrategy(Strategy):
         self.log.info(f"{self.config['name']} stopped")
 
     def init_deque(self):
-        conn = sqlite3.connect('db_crypto.db')
+        conn = sqlite3.connect('./data/db_crypto.db')
         df = pd.read_sql_query(f"SELECT * FROM bars WHERE symbol == '{self.config['symbols'][0]}'", conn)  # 0 to get the first symbol
         df.sort_values(by=['timestamp'], inplace=True)
         self.short_ma.extend(df['close'].tail(7200))  # 60min * 24h * 5d = 7200

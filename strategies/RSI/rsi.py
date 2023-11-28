@@ -38,7 +38,7 @@ class RSIStrategy(Strategy):
         self.log.info(f"{self.config['name']} stopped")
 
     def init_deque(self):
-        conn = sqlite3.connect('db_crypto.db')
+        conn = sqlite3.connect('./data/db_crypto.db')
         df = pd.read_sql_query(f"SELECT * FROM bars WHERE symbol == '{self.config['symbols'][0]}'", conn)  # 0 to get the first symbol
         df.sort_values(by=['timestamp'], inplace=True)
         self.data_rsi.extend(df['close'].tail(20160))  # 60min * 24h * 5d = 20160
@@ -67,7 +67,7 @@ class RSIStrategy(Strategy):
             rsi = add_RSI_indic(df, column_name='close', window_length=20160)  # 60min * 24h * 14d = 20160
 
             # Current RSI value
-            current_rsi = rsi.iloc[-1]['RSI']
+            current_rsi = rsi.iloc[-1]
 
             # Determine the trading signal
             if current_rsi < 0.3:  # RSI below 30%, potential buy signal

@@ -83,7 +83,7 @@ class CryptoDatabase:
 
     def open(self):
         if self.conn is None:
-            self.conn = sqlite3.connect('db_crypto.db')
+            self.conn = sqlite3.connect('./data/db_crypto.db')
             self.cursor = self.conn.cursor()
 
     def close(self):

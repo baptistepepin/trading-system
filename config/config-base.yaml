@@ -96,7 +96,7 @@ strategies:
     api_key: ${ALPACA_API_KEY}
     secret_key: ${ALPACA_SECRET_KEY}
     venues: ['alpaca']
-    symbols: []
+    symbols: ['BTC/USD']
   - type: strat1
     name: strategy_strat1_btc
     api_key: ${ALPACA_API_KEY}

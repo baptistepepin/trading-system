@@ -24,6 +24,8 @@ class RSIStrategy(Strategy):
         super().__init__(config, signal_callback, log, stopEvent)
         self.data_rsi = deque(maxlen=20160)  # 60min * 24h * 14d = 20160
         self.rsi = 0.5
+        self.buy = True
+        self.sell = True
         self.init_deque()
 
     def run(self):
@@ -67,16 +69,23 @@ class RSIStrategy(Strategy):
             rsi = add_RSI_indic(df, column_name='close', window_length=20160)  # 60min * 24h * 14d = 20160
 
             # Current RSI value
-            current_rsi = rsi.iloc[-1]
+            current_rsi = rsi.iloc[-1].values[0]
 
             # Determine the trading signal
-            if current_rsi < 0.3:  # RSI below 30%, potential buy signal
+            if current_rsi <= 30 and self.buy:  # RSI below 30%, potential buy signal
                 quantity = self.calculate_position_size(bar.close, 'buy')
                 signal = Signal(bar.venue, bar.symbol, Exposure.LONG, quantity, bar.close)
                 self.log.debug(f"{self.config['name']} emitting Buy signal: {signal}")
                 self._emit_signals([signal])
-            elif current_rsi > 0.7:  # RSI above 70%, potential sell signal
+                self.buy = False
+            elif current_rsi > 30 and not self.buy:  # RSI above 30%, reset buy signal
+                self.buy = True
+
+            if current_rsi >= 70 and self.sell:  # RSI above 70%, potential sell signal
                 quantity = self.calculate_position_size(bar.close, 'sell')
                 signal = Signal(bar.venue, bar.symbol, Exposure.SHORT, quantity, bar.close)
                 self.log.debug(f"{self.config['name']} emitting Sell signal: {signal}")
                 self._emit_signals([signal])
+                self.sell = False
+            elif current_rsi < 70 and not self.sell:  # RSI below 70%, reset sell signal
+                self.sell = True

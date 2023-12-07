@@ -1,6 +1,6 @@
 # Trading System Project
 
-In order to run this program, please create a `config.yaml` file using th `config-base.yaml` file as a template. You will need to fill in the API keys and secret keys for Alpaca and the database. You will also need to fill in the folder for the logs.
+In order to run this program, please create a `config.yaml` file using the `config-base.yaml` file as a template. You will need to fill in the API keys and secret keys for Alpaca and the database. You will also need to fill in the folder for the logs.
 
 ```python
     ALPACA_API_KEY = Y0UR4API7K3Y
@@ -9,11 +9,13 @@ In order to run this program, please create a `config.yaml` file using th `confi
     LOGDIR = logs
 ```
 
+This project is a trading system developed for the course "Computing for Finance" at the University of Chicago. The architecture of the system is strongly inspired by what was presented by Adam Duke.
+
 ## 1. Introduction
 
 The trading system we've developed is an algorithmic solution designed to automate trading activities in financial markets. This system employs a combination of real-time data analysis, technical indicators, and a decision-making framework to execute trades. The primary goal is to capitalize on market movements by making informed, data-driven decisions, thus enhancing the potential for profitability.
 
-At the heart of this system is the `Strategy` folder, containing for exampl `SMAStrategy` a strategy class that implements a Simple Moving Average (SMA) based trading approach. The strategy revolves around two key moving averages: a short-term and a long-term moving average. By analyzing the interaction between these two averages, the system generates buy or sell signals. The algorithm captures trends and reversals in market prices, enabling it to act on potential trading opportunities.
+At the heart of this system is the `Strategy` folder, containing for example `SMAStrategy` a strategy class that implements a Simple Moving Average (SMA) based trading approach. The strategy revolves around two key moving averages: a short-term and a long-term moving average. By analyzing the interaction between these two averages, the system generates buy or sell signals. The algorithm captures trends and reversals in market prices, enabling it to act on potential trading opportunities. We also implemented an `RSIStrategy` based on the RSI indicator. If follows the same template so in this document, we will focus on the SMA strategy to show the different parts of our algorithm.
 
 The strategies continuously process incoming market data (`Bar` objects), updating the parameters and evaluating the current market conditions.
 
@@ -40,6 +42,7 @@ class CryptoDatabase:
         self.open()
         self.initialize_database()
         self.populate_database(start_date)
+        self.close()
 ```
 
 - The `__init__` method initializes the class, setting up the Alpaca API connection with API keys (`api_key` and `secret_key`) and the base URL.
@@ -180,8 +183,9 @@ class SMAStrategy(Strategy):
                  log: logging.Logger,
                  stopEvent: Event):
         super().__init__(config, signal_callback, log, stopEvent)
-        self.short_ma = deque(maxlen=28800)
-        self.long_ma = deque(maxlen=72000)
+        self.short_ma = deque(maxlen=7200)  # 60min * 24h * 5d = 7200
+        self.long_ma = deque(maxlen=28800)  # 60min * 24h * 20d = 28800
+        self.last_buy = False
         self.init_deque()
 ```
 
@@ -210,8 +214,8 @@ def run(self):
 
 ```python
 def init_deque(self):
-    conn = sqlite3.connect('db_crypto.db')
-    df = pd.read_sql_query(f"SELECT * FROM bars WHERE symbol == '{self.config['symbols'][0]}'", conn)
+    conn = sqlite3.connect('./data/db_crypto.db')
+    df = pd.read_sql_query(f"SELECT * FROM bars WHERE symbol == '{self.config['symbols'][0]}'", conn)  # 0 to get the first symbol
     df.sort_values(by=['timestamp'], inplace=True)
     self.short_ma.extend(df['close'].tail(7200))  # 60min * 24h * 5d = 7200
     self.long_ma.extend(df['close'].tail(28800))  # 60min * 24h * 20d = 28800
@@ -241,23 +245,25 @@ def process_bar(self, bar: Bar):
 ### 5. Generating Trading Signals
 
 ```python
-        if len(self.short_ma) == self.short_ma.maxlen and len(self.long_ma) == self.long_ma.maxlen:
-            short_sma = np.mean(self.short_ma)
-            long_sma = np.mean(self.long_ma)
+if len(self.short_ma) == self.short_ma.maxlen and len(self.long_ma) == self.long_ma.maxlen:
+    short_sma = np.mean(self.short_ma)
+    long_sma = np.mean(self.long_ma)
 
-            # Determine the trading signal
-            if short_sma > long_sma:
-                # Short-term SMA crosses above long-term SMA - Buy Signal
-                quantity = self.calculate_position_size(bar.close, 'buy')
-                signal = Signal(bar.venue, bar.symbol, Exposure.LONG, quantity, bar.close)
-                self.log.debug(f"{self.config['name']} emitting Buy signal: {signal}")
-                self._emit_signals([signal])
-            elif short_sma < long_sma:
-                # Short-term SMA crosses below long-term SMA - Sell Signal
-                quantity = self.calculate_position_size(bar.close, 'sell')
-                signal = Signal(bar.venue, bar.symbol, Exposure.SHORT, quantity, bar.close)
-                self.log.debug(f"{self.config['name']} emitting Sell signal: {signal}")
-                self._emit_signals([signal])
+    # Determine the trading signal
+    if short_sma > long_sma and not self.last_buy:
+        # Short-term SMA crosses above long-term SMA - Buy Signal
+        quantity = self.calculate_position_size(bar.close, 'buy')
+        signal = Signal(bar.venue, bar.symbol, Exposure.LONG, quantity, bar.close)
+        self.log.debug(f"{self.config['name']} emitting Buy signal: {signal}")
+        self._emit_signals([signal])
+        self.last_buy = True
+    elif short_sma < long_sma and self.last_buy:
+        # Short-term SMA crosses below long-term SMA - Sell Signal
+        quantity = self.calculate_position_size(bar.close, 'sell')
+        signal = Signal(bar.venue, bar.symbol, Exposure.SHORT, quantity, bar.close)
+        self.log.debug(f"{self.config['name']} emitting Sell signal: {signal}")
+        self._emit_signals([signal])
+        self.last_buy = False
 ```
 
 - The strategy emits buy signals when the short-term SMA crosses above the long-term SMA, and sell signals when it crosses below.
@@ -591,7 +597,7 @@ Reflecting on the results of the SMA strategy project for BTC/USD, several key i
 3. **Dynamic Position Sizing**: Implementing a more dynamic position-sizing method based on current market volatility or the portfolio's equity curve could improve risk-adjusted returns.
 4. **Machine Learning Integration**: Applying machine learning techniques for more sophisticated market prediction and signal generation could be a valuable addition in future iterations.
 
-The project provided valuable insights into the practical aspects of developing and backtesting a trading strategy. While the SMA strategy showed promise, it also highlighted the complexities and challenges inherent in algorithmic trading. The lessons learned from this exercise are crucial stepping stones for further development and refinement of the strategy.
+The project provided valuable insights into the practical aspects of developing and backtesting a trading strategy. Especially how to handle multi-threading to run different strategy and receive live data. While the SMA strategy showed promise, it also highlighted the complexities and challenges inherent in algorithmic trading.
 
 ## 10. Compliance and Legal Considerations
 
@@ -625,9 +631,9 @@ The project focused on developing, testing, and evaluating a Simple Moving Avera
 
 ### Key Achievements
 
-1. **Strategy Development**: Successfully developed an SMA crossover strategy, leveraging historical price data to generate buy and sell signals based on the crossing of short-term and long-term moving averages.
+1. **Strategy Development**: Successfully developed an SMA crossover strategy, leveraging historical price data to generate buy and sell signals based on the crossing of short-term and long-term moving averages. A second strategy using the RSI indicator has also been developed.
 
-2. **Backtesting Framework**: Established a robust backtesting framework using Python and SQLite, which allowed for a detailed examination of the strategy's performance on historical data.
+2. **Backtesting Framework**: Tried to backtest one of the strategies using Python and SQLite, which allowed for a detailed examination of the strategy's performance on historical data.
 
 3. **Risk Management Implementation**: Incorporated risk management principles by defining a fixed percentage of capital to be risked per trade, thus helping to mitigate potential losses.
 
@@ -639,15 +645,14 @@ The project focused on developing, testing, and evaluating a Simple Moving Avera
 
 2. **Insights into Market Behavior**: The project provided valuable insights into the behavior of the BTC/USD market, particularly the effectiveness of trend-following strategies in such a volatile environment.
 
-3. **Identification of Challenges**: Identified key challenges such as dealing with market volatility, avoiding false signals, and the risk of overfitting the strategy to historical data.
+3. **Lessons in Data Management**: Gained experience in handling and processing large datasets efficiently, an essential skill in the field of algorithmic trading.
 
-4. **Lessons in Data Management**: Gained experience in handling and processing large datasets efficiently, an essential skill in the field of algorithmic trading.
+4. **Lessons in Multi-Threading**: Learned how to implement multi-threading to run different strategies and receive live data.
 
 ### Potential Improvements for Future Iterations
 
 - **Parameter Optimization**: Exploring different SMA periods and other parameters to enhance strategy effectiveness.
 - **Advanced Techniques**: Considering the integration of additional technical indicators, fundamental analysis, and machine learning algorithms for improved signal accuracy.
 - **Dynamic Position Sizing**: Implementing a more adaptive position-sizing strategy based on current market conditions.
-- **Real-Time Testing**: Conducting paper trading in real-time market conditions to further validate the strategy's effectiveness.
 
 The SMA strategy project for BTC/USD trading represents a significant step in exploring algorithmic trading in the cryptocurrency market. It has laid a strong foundation for further research and development in this field, with valuable lessons learned and clear pathways identified for future improvements and refinements.

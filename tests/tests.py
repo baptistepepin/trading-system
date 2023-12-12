@@ -12,7 +12,13 @@ class TestGateway(unittest.TestCase):
 
 
 class TestStrategy(unittest.TestCase):
-    def test_strategy(self):
+    def test_strat1(self):
+        pass
+
+    def test_rsi(self):
+        pass
+
+    def test_sma(self):
         pass
 
 

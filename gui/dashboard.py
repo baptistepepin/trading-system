@@ -1,43 +1,66 @@
 import dash
-from dash import dcc
-from dash import html
-from dash.dependencies import Input, Output
+from dash import dcc, html
 import plotly.graph_objs as go
-from flask import Flask
+from dash.dependencies import Input, Output
+import threading
+import time
 import pandas as pd
 
 
+# Function to run in the background to listen for new data
+def listen_for_data(rx, shared_data):
+    while True:
+        if rx.poll():
+            bar = rx.recv()
+            if bar.symbol == 'BTC/USD':
+                shared_data.append(bar)
+        time.sleep(0.1)  # Small delay to prevent this loop from hogging CPU
+
+
 def spawn_dashboard(rx):
-    server = Flask(__name__)
-    app = dash.Dash(__name__, server=server, url_base_pathname='/')
+    """
+    Launches a Dash/Flask dashboard that displays live bar data.
 
-    app.layout = html.Div(children=[
-        html.H1(children='Trading Dashboard'),
+    :param rx: The receiving end of a pipe, used to get live bar data.
+    """
+    # Shared data storage
+    shared_data = []
 
-        dcc.Graph(id='live-update-graph'),
+    # Start a background thread to listen for new data
+    data_thread = threading.Thread(target=listen_for_data, args=(rx, shared_data))
+    data_thread.start()
+
+    # Initialize Dash app
+    app = dash.Dash(__name__)
+
+    # Dash layout
+    app.layout = html.Div([
+        dcc.Graph(id='live-graph', animate=True),
         dcc.Interval(
-            id='interval-component',
-            interval=1 * 1000,
+            id='graph-update',
+            interval=1000,  # in milliseconds
             n_intervals=0
-        )
+        ),
     ])
 
-    @app.callback(Output('live-update-graph', 'figure'),
-                  [Input('interval-component', 'n_intervals')])
-    def update_graph_live(n):
-        try:
-            data = rx.recv()
-            df = pd.DataFrame([data])
-        except EOFError:
-            return go.Figure()
-        except Exception as e:
-            print(f"Error receiving data: {e}")
-            return go.Figure()
+    @app.callback(Output('live-graph', 'figure'),
+                  [Input('graph-update', 'n_intervals')])
+    def update_graph_scatter(n):
+        if shared_data:
+            df = pd.DataFrame([vars(bar) for bar in shared_data])  # Convert Bar objects to DataFrame
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df['timestamp'], y=df['ask_prc'], name='Data',
-                                 mode='lines+markers'))
+            # Create the Plotly Graph object
+            trace = go.Scatter(
+                x=df['timestamp'],
+                y=df['close'],  # Assuming you want to plot the closing price
+                name='Scatter',
+                mode='lines+markers'
+            )
 
-        return fig
+            return {'data': [trace], 'layout': go.Layout(xaxis=dict(range=[min(df['timestamp']), max(df['timestamp'])]),
+                                                         yaxis=dict(range=[min(df['close']), max(df['close'])]))}
+        else:
+            return {'data': [], 'layout': go.Layout()}
 
+    # Running the server
     app.run_server(debug=True, use_reloader=False)

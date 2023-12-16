@@ -47,8 +47,8 @@ class Engine(Thread):
         self.signalBuffer = SimpleQueue()
         self.stopEvent = Event()
         self.dbcxn = cryptoDatabase
-        # rx, self.tx = Pipe(duplex=False)
-        # self.dashproc = Process(target=spawn_dashboard, args=(rx,))
+        rx, self.tx = Pipe(duplex=False)
+        self.dashproc = Process(target=spawn_dashboard, args=(rx,))
 
         try:
             self.dbcxn.open()
@@ -89,7 +89,7 @@ class Engine(Thread):
 
     def run(self):
         self.log.info("engine started")
-        # self.dashproc.start()
+        self.dashproc.start()
         threads: List[Thread] = []
         threads.extend(self.strategies)
         threads.extend(self.gateways)
@@ -104,8 +104,8 @@ class Engine(Thread):
         self.log.info("engine stopping")
         list(g.stop() for g in self.gateways)
         list(t.join() for t in threads)
-        # self.dashproc.terminate()
-        # self.dashproc.join()
+        self.dashproc.terminate()
+        self.dashproc.join()
         self.log.info("engine stopped")
 
     def handle_quotes(self, quotes: List[Quote]):
@@ -134,7 +134,7 @@ class Engine(Thread):
         for bar in bars:
             self.dataLog.info(bar)
             self.dbcxn.update_database()
-            # self.tx.send(bar)
+            self.tx.send(bar)
             for strategy in self.routing[bar.venue][bar.symbol]:
                 strategy.handle_bars([bar])
 

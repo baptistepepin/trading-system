@@ -9,7 +9,7 @@ In order to run this program, please create a `config.yaml` file using the `conf
     LOGDIR = logs
 ```
 
-This project is a trading system developed for the course "Computing for Finance" at the University of Chicago. The architecture of the system is strongly inspired by what was presented by Adam Duke.
+This project is a trading system developed for the course "Computing for Finance in Python" at the University of Chicago.
 
 ## 1. Introduction
 

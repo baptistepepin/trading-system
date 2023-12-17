@@ -12,8 +12,13 @@ def listen_for_data(rx, shared_data):
     while True:
         if rx.poll():
             bar = rx.recv()
-            if bar.symbol == 'BTC/USD':
-                shared_data.append(bar)
+
+            # Check if the key exists in the dictionary
+            if bar.symbol not in shared_data:
+                # If not, initialize an empty list
+                shared_data[bar.symbol] = []
+
+            shared_data[bar.symbol].append(bar)
         time.sleep(0.1)  # Small delay to prevent this loop from hogging CPU
 
 
@@ -24,7 +29,7 @@ def spawn_dashboard(rx):
     :param rx: The receiving end of a pipe, used to get live bar data.
     """
     # Shared data storage
-    shared_data = []
+    shared_data = {}
 
     # Start a background thread to listen for new data
     data_thread = threading.Thread(target=listen_for_data, args=(rx, shared_data))
@@ -35,7 +40,7 @@ def spawn_dashboard(rx):
 
     # Dash layout
     app.layout = html.Div([
-        dcc.Graph(id='live-graph', animate=True),
+        html.Div(id='graphs-container'),
         dcc.Interval(
             id='graph-update',
             interval=1000,  # in milliseconds
@@ -43,24 +48,47 @@ def spawn_dashboard(rx):
         ),
     ])
 
-    @app.callback(Output('live-graph', 'figure'),
+    # Callback to dynamically generate graphs based on symbols
+    @app.callback(Output('graphs-container', 'children'),
                   [Input('graph-update', 'n_intervals')])
-    def update_graph_scatter(n):
-        if shared_data:
-            df = pd.DataFrame([vars(bar) for bar in shared_data])  # Convert Bar objects to DataFrame
+    def update_graphs(n):
+        graphs = []
+        for symbol in shared_data.keys():
+            graph = dcc.Graph(
+                id={
+                    'type': 'dynamic-graph',
+                    'index': symbol
+                },
+                animate=True
+            )
+            graphs.append(graph)
+        return graphs
+
+    # Callback for updating each individual graph
+    @app.callback(
+        Output({'type': 'dynamic-graph', 'index': dash.dependencies.ALL}, 'figure'),
+        [Input('graph-update', 'n_intervals')]
+    )
+    def update_individual_graphs(n):
+        figures = []
+        for symbol, bars in shared_data.items():
+            df = pd.DataFrame([vars(bar) for bar in bars])  # Convert Bar objects to DataFrame
 
             # Create the Plotly Graph object
             trace = go.Scatter(
                 x=df['timestamp'],
                 y=df['close'],  # Assuming you want to plot the closing price
-                name='Scatter',
                 mode='lines+markers'
             )
 
-            return {'data': [trace], 'layout': go.Layout(xaxis=dict(range=[min(df['timestamp']), max(df['timestamp'])]),
-                                                         yaxis=dict(range=[min(df['close']), max(df['close'])]))}
-        else:
-            return {'data': [], 'layout': go.Layout()}
+            layout = go.Layout(
+                title=symbol,
+                xaxis=dict(title='Timestamp'),
+                yaxis=dict(title='Close Price')
+            )
+
+            figures.append({'data': [trace], 'layout': layout})
+        return figures
 
     # Running the server
     app.run_server(debug=True, use_reloader=False)

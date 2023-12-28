@@ -72,13 +72,7 @@ venues:
     name: gateway_alpaca
     api_key: ${ALPACA_API_KEY}
     secret_key: ${ALPACA_SECRET_KEY}
-    endpoints:
-      market_data:
-        stocks: wss://stream.data.alpaca.markets/v2/iex
-        crypto: wss://stream.data.alpaca.markets/v1beta3/crypto/us
-      order_management:
-        stocks:
-        crypto:
+    paper: ${ALPACA_PAPER_ACCOUNT}
     symbols_crypto:
       - BTC/USD
       - ETH/USD
@@ -89,23 +83,28 @@ strategies:
     name: strategy_sma_btc
     api_key: ${ALPACA_API_KEY}
     secret_key: ${ALPACA_SECRET_KEY}
+    paper: ${ALPACA_PAPER_ACCOUNT}
     venues: ['alpaca']
     symbols: ['BTC/USD']
   - type: rsi
     name: strategy_rsi_btc
     api_key: ${ALPACA_API_KEY}
     secret_key: ${ALPACA_SECRET_KEY}
+    paper: ${ALPACA_PAPER_ACCOUNT}
     venues: ['alpaca']
     symbols: ['BTC/USD']
   - type: strat1
     name: strategy_strat1_btc
     api_key: ${ALPACA_API_KEY}
     secret_key: ${ALPACA_SECRET_KEY}
+    paper: ${ALPACA_PAPER_ACCOUNT}
     venues: ['alpaca']
     symbols: []
 database:  # This database is used for storing data from Alpaca only
   api_key: ${ALPACA_API_KEY}
   secret_key: ${ALPACA_SECRET_KEY}
-  symbols_crypto:
-    - BTC/USD
-    - ETH/USD
+  start_date: '2023-12-01'
+  crypto:
+    symbols:
+      - BTC/USD
+      - ETH/USD

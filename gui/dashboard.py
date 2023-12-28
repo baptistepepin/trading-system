@@ -39,55 +39,54 @@ def spawn_dashboard(rx):
     app = dash.Dash(__name__)
 
     # Dash layout
-    app.layout = html.Div([
-        html.Div(id='graphs-container'),
-        dcc.Interval(
-            id='graph-update',
-            interval=1000,  # in milliseconds
-            n_intervals=0
-        ),
-    ])
+    app.layout = html.Div(
+        [
+            html.Div(id="graphs-container"),
+            dcc.Interval(
+                id="graph-update", interval=1000, n_intervals=0  # in milliseconds
+            ),
+        ]
+    )
 
     # Callback to dynamically generate graphs based on symbols
-    @app.callback(Output('graphs-container', 'children'),
-                  [Input('graph-update', 'n_intervals')])
+    @app.callback(
+        Output("graphs-container", "children"), [Input("graph-update", "n_intervals")]
+    )
     def update_graphs(n):
         graphs = []
         for symbol in shared_data.keys():
             graph = dcc.Graph(
-                id={
-                    'type': 'dynamic-graph',
-                    'index': symbol
-                },
-                animate=True
+                id={"type": "dynamic-graph", "index": symbol}, animate=True
             )
             graphs.append(graph)
         return graphs
 
     # Callback for updating each individual graph
     @app.callback(
-        Output({'type': 'dynamic-graph', 'index': dash.dependencies.ALL}, 'figure'),
-        [Input('graph-update', 'n_intervals')]
+        Output({"type": "dynamic-graph", "index": dash.dependencies.ALL}, "figure"),
+        [Input("graph-update", "n_intervals")],
     )
     def update_individual_graphs(n):
         figures = []
         for symbol, bars in shared_data.items():
-            df = pd.DataFrame([vars(bar) for bar in bars])  # Convert Bar objects to DataFrame
+            df = pd.DataFrame(
+                [vars(bar) for bar in bars]
+            )  # Convert Bar objects to DataFrame
 
             # Create the Plotly Graph object
             trace = go.Scatter(
-                x=df['timestamp'],
-                y=df['close'],  # Assuming you want to plot the closing price
-                mode='lines+markers'
+                x=df["timestamp"],
+                y=df["close"],  # Assuming you want to plot the closing price
+                mode="lines+markers",
             )
 
             layout = go.Layout(
                 title=symbol,
-                xaxis=dict(title='Timestamp'),
-                yaxis=dict(title='Close Price')
+                xaxis=dict(title="Timestamp"),
+                yaxis=dict(title="Close Price"),
             )
 
-            figures.append({'data': [trace], 'layout': layout})
+            figures.append({"data": [trace], "layout": layout})
         return figures
 
     # Running the server

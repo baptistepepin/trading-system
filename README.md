@@ -33,10 +33,10 @@ class CryptoDatabase:
         self.log = log
         self.databaseLog = logging.getLogger('database')
         self.symbols = config['database']['symbols_crypto']
-        self.api = tradeapi.REST(config['database']['api_key'],
-                                 config['database']['secret_key'],
-                                 base_url=URL('https://paper-api.alpaca.markets'),
-                                 api_version='v2')
+        self.api = CryptoHistoricalDataClient(
+            api_key=config['database']['api_key'],
+            secret_key=config['database']['secret_key'],
+        )
         self.conn = None
         self.cursor = None
         self.open()
@@ -299,7 +299,11 @@ class SMAStrategy(Strategy):
     # ... existing code ...
 
     def calculate_position_size(self, price, side):
-        account = tradeapi.REST(self.config['api_key'], self.config['secret_key'], base_url=URL('https://paper-api.alpaca.markets'), api_version='v2').get_account()
+        account = account = TradingClient(
+            api_key=self.config['api_key'],
+            secret_key=self.config['secret_key'],
+            paper=True,
+        ).get_account()
         self.equity = float(account.equity)
         self.cash = float(account.cash)
 
@@ -518,10 +522,11 @@ The utilization of Alpaca's paper trading feature in our algorithmic trading sys
 - **Configuration**: The system is configured to interact with Alpaca's paper trading environment rather than the live trading environment. This is typically done by using the API keys provided for the paper trading account and setting the appropriate endpoint URLs in the configuration.
   
   ```python
-  self.api = tradeapi.REST(config['database']['api_key'],
-                           config['database']['secret_key'],
-                           base_url=URL('https://paper-api.alpaca.markets'),
-                           api_version='v2')
+  self.api = account = TradingClient(
+      api_key=self.config['api_key'],
+      secret_key=self.config['secret_key'],
+      paper=True,
+  )
   ```
 
 - **Order Execution**: When the algorithm decides to execute a trade based on its strategy, the order is sent to Alpaca's paper trading environment. This simulates real trading but does not involve real money.

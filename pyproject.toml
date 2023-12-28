@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pyodbc = "^5.0.1"
+alpaca-py = "^0.13.4"
+pyyaml = "^6.0.1"
+dash = "^2.14.2"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.scripts]
+start = "app.cmd:start"
+
+[tool.poetry.group.dev.dependencies]
+sqlite-web = "^0.6.1"
+pytest = "^7.4.3"
+flake8 = "^6.1.0"
+black = {extras = ["jupyter"], version = "^23.12.1"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

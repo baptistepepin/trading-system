@@ -4,16 +4,19 @@ from typing import List, Callable
 from abc import ABC, abstractmethod
 from queue import SimpleQueue
 from threading import Thread, Event
+
 # local
 from engine.interface import Trade, Quote, Signal, Bar
 
 
 class Strategy(ABC, Thread):
-    def __init__(self,
-                 config: dict,
-                 signal_callback: Callable[[List[Signal]], None],
-                 log: logging.Logger,
-                 stopEvent: Event):
+    def __init__(
+        self,
+        config: dict,
+        signal_callback: Callable[[List[Signal]], None],
+        log: logging.Logger,
+        stopEvent: Event,
+    ):
         super().__init__(name=f"{config['name']}")
         self.config = config
         self.log = log
@@ -23,7 +26,7 @@ class Strategy(ABC, Thread):
         self.barBuffer = SimpleQueue()
         self.stopEvent = stopEvent
 
-    def handle_quotes(self,  quotes: List[Quote]):
+    def handle_quotes(self, quotes: List[Quote]):
         for quote in quotes:
             self.quoteBuffer.put(quote)
 

@@ -1,10 +1,8 @@
 # standard
 import logging
 import queue
-import sqlite3
 
 import pandas as pd
-import pyodbc
 from multiprocessing.context import Process
 from queue import SimpleQueue
 from collections import defaultdict
@@ -15,7 +13,17 @@ from typing import Dict, Callable, DefaultDict, List
 from alpaca.trading import MarketOrderRequest, TimeInForce, OrderType
 
 # local
-from engine.interface import Trade, Quote, Signal, Venue, StrategyType, StrategyTypeMap, VenueMap, ExposureToSideMap, Bar
+from engine.interface import (
+    Trade,
+    Quote,
+    Signal,
+    Venue,
+    StrategyType,
+    StrategyTypeMap,
+    VenueMap,
+    ExposureToSideMap,
+    Bar,
+)
 from gateways.alpaca.alpacaGateway import AlpacaGateway
 from gui.dashboard import spawn_dashboard
 from strategies.RSI.rsi import RSIStrategy
@@ -30,9 +38,15 @@ gatewayFactory: Dict[int, Callable[..., Gateway]] = {
 }
 
 strategyFactory: Dict[int, Callable[..., Strategy]] = {
-    StrategyType.SMA: lambda cfg, scb, log, stopper: SMAStrategy(cfg, scb, log, stopper),
-    StrategyType.RSI: lambda cfg, scb, log, stopper: RSIStrategy(cfg, scb, log, stopper),
-    StrategyType.Strat1: lambda cfg, scb, log, stopper: Strat1Strategy(cfg, scb, log, stopper)
+    StrategyType.SMA: lambda cfg, scb, log, stopper: SMAStrategy(
+        cfg, scb, log, stopper
+    ),
+    StrategyType.RSI: lambda cfg, scb, log, stopper: RSIStrategy(
+        cfg, scb, log, stopper
+    ),
+    StrategyType.Strat1: lambda cfg, scb, log, stopper: Strat1Strategy(
+        cfg, scb, log, stopper
+    ),
 }
 
 
@@ -40,8 +54,10 @@ class Engine(Thread):
     def __init__(self, config, log: logging.Logger, cryptoDatabase):
         super().__init__(name="engine")
         self.log: logging.Logger = log
-        self.dataLog = logging.getLogger('data')
-        self.routing: DefaultDict[int, DefaultDict[str, List[Strategy]]] = defaultdict(lambda: defaultdict(list))
+        self.dataLog = logging.getLogger("data")
+        self.routing: DefaultDict[int, DefaultDict[str, List[Strategy]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
         self.gateways: List[Gateway] = []
         self.strategies: List[Strategy] = []
         self.signalBuffer = SimpleQueue()
@@ -54,30 +70,38 @@ class Engine(Thread):
             self.dbcxn.open()
             self.dbcxn.close()
         except Exception as e:
-            log.critical(f'database failure: {e}')
+            log.critical(f"database failure: {e}")
             exit(1)
 
         # setup gateways
-        for venueCfg in config['venues']:
+        for venueCfg in config["venues"]:
             try:
-                v = VenueMap[venueCfg['api']]
-                gateway = gatewayFactory[v](venueCfg, self.handle_quotes, self.handle_trades, self.handle_bars, log)
+                v = VenueMap[venueCfg["api"]]
+                gateway = gatewayFactory[v](
+                    venueCfg,
+                    self.handle_quotes,
+                    self.handle_trades,
+                    self.handle_bars,
+                    log,
+                )
                 self.gateways.append(gateway)
             except KeyError:
                 log.critical(f"unsupported venue: {venueCfg['api']}")
                 exit(1)
-            except Exception as e:
+            except Exception:
                 log.critical(f"failed to instantiate gateway: {venueCfg['api']}")
                 exit(1)
 
         # setup strategies
-        for strategyCfg in config['strategies']:
+        for strategyCfg in config["strategies"]:
             try:
-                st = StrategyTypeMap[strategyCfg['type']]
-                strategy = strategyFactory[st](strategyCfg, self.handle_signals, log, self.stopEvent)
-                for venue in strategyCfg['venues']:
+                st = StrategyTypeMap[strategyCfg["type"]]
+                strategy = strategyFactory[st](
+                    strategyCfg, self.handle_signals, log, self.stopEvent
+                )
+                for venue in strategyCfg["venues"]:
                     v = VenueMap[venue]
-                    for symbol in strategyCfg['symbols']:
+                    for symbol in strategyCfg["symbols"]:
                         self.routing[v][symbol].append(strategy)
                 self.strategies.append(strategy)
             except KeyError as e:
@@ -114,9 +138,26 @@ class Engine(Thread):
             # TODO: add a quote message in database log
             self.dbcxn.open()
             quote_df = pd.DataFrame(
-                [[quote.timestamp, quote.symbol, quote.bid_prc, quote.bid_qty, quote.ask_prc, quote.ask_qty]],
-                columns=['timestamp', 'symbol', 'bid_price', 'bid_qty', 'ask_price', 'ask_qty'])
-            quote_df.to_sql('quotes', self.dbcxn.conn, if_exists='append', index=False)
+                [
+                    [
+                        quote.timestamp,
+                        quote.symbol,
+                        quote.bid_prc,
+                        quote.bid_qty,
+                        quote.ask_prc,
+                        quote.ask_qty,
+                    ]
+                ],
+                columns=[
+                    "timestamp",
+                    "symbol",
+                    "bid_price",
+                    "bid_qty",
+                    "ask_price",
+                    "ask_qty",
+                ],
+            )
+            quote_df.to_sql("quotes", self.dbcxn.conn, if_exists="append", index=False)
             self.dbcxn.conn.commit()
             self.dbcxn.close()
             # self.tx.send(quote)

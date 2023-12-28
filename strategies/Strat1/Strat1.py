@@ -1,20 +1,19 @@
 import logging
 import queue
 from typing import List, Callable
-from engine.interface import Trade, Quote, Signal, Exposure
+from engine.interface import Trade, Quote, Signal
 from strategies.strategy import Strategy
 from threading import Event
-import pandas as pd
-import numpy as np
-from collections import deque
 
 
 class Strat1Strategy(Strategy):
-    def __init__(self,
-                 config,
-                 signal_callback: Callable[[List[Signal]], None],
-                 log: logging.Logger,
-                 stopEvent: Event):
+    def __init__(
+        self,
+        config,
+        signal_callback: Callable[[List[Signal]], None],
+        log: logging.Logger,
+        stopEvent: Event,
+    ):
         super().__init__(config, signal_callback, log, stopEvent)
 
     def handle_trades(self, trades: List[Trade]):

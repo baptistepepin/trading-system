@@ -14,12 +14,14 @@ class Gateway(ABC, Thread):
     Abstract gateway interface
     """
 
-    def __init__(self,
-                 config: dict,
-                 quote_callback: Callable[[List[Quote]], None],
-                 trade_callback: Callable[[List[Trade]], None],
-                 bar_callback: Callable[[List[Bar]], None],
-                 log: logging.Logger):
+    def __init__(
+        self,
+        config: dict,
+        quote_callback: Callable[[List[Quote]], None],
+        trade_callback: Callable[[List[Trade]], None],
+        bar_callback: Callable[[List[Bar]], None],
+        log: logging.Logger,
+    ):
         super().__init__(name=f"{config['name']}")
         self.config = config
         self.quote_cb = quote_callback

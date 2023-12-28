@@ -1,3 +1,5 @@
+__pycache__
 /config/config.yaml
 /data/db_crypto.db
 /config/config-resolved.yaml
+.env
